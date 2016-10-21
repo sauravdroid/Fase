@@ -7,6 +7,8 @@
 <body>
     <form action="{% url 'user:index' %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="username" value="saru.sreyo"/>
+        <input type="hidden" name="password" value="terikyasgo"/>
         <button type="submit">Submit</button>
     </form>
 </body>

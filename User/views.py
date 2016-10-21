@@ -7,4 +7,6 @@ def index(request):
     if request.method == 'GET':
         return render(request,'User/index.html',{})
     else:
-        return HttpResponse('This is a post request')
+        username = request.POST.get('username','invalid')
+        password = request.POST.get('password','invalid')
+        return HttpResponse('Username = '+username + ' , Password = ' + password)
