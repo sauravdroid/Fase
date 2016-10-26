@@ -27,4 +27,4 @@ def user_register(request):
             password = form.cleaned_data['password']
             user.set_password(password)
             user.save()
-            return HttpResponse('Successfully Registered')
+            return HttpResponse('Successfully Registered User')
