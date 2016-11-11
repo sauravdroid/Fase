@@ -1,11 +1,12 @@
 import hashlib
 import hmac
 import json
-from random import random
+
 import time
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.shortcuts import HttpResponse
+from django.utils.crypto import random
 from django.views.decorators.csrf import csrf_exempt
 
 from .forms import *
