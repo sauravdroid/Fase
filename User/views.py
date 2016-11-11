@@ -73,11 +73,11 @@ def citrus_bill_generator(request):
 
     secret_key = "d1e4287f9b4d413b7c7286b9fd02dbdabeacf1ff"
 
-    return_url = 'https://komorebitest.in/payments/citrus/return-url/'
+    return_url = 'https://fase.herokuapp.com/returnurl'
 
     value = request.GET['amount']
 
-    txnid = str(int(time.time())) + str(int(random.random() * 99999) + 10000);
+    txnid = str(int(time.time())) + str(int(random.random() * 99999) + 10000)
 
     data_string = ('merchantAccessKey=' + access_key +
 
