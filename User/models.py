@@ -12,7 +12,11 @@ class StockNew(models.Model):
     def __str__(self):
         return self.name + ' ' + self.ticker
 
+
 class CitrusResponse(models.Model):
     response_string = models.TextField()
-    transaction_id = models.CharField(max_length=255,unique=True)
+    transaction_id = models.CharField(max_length=255, unique=True)
     data_string = models.TextField()
+
+    def __str__(self):
+        return self.transaction_id + " | " + self.response_string
