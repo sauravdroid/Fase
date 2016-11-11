@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 import json
-#from Company.models import CitrusResponse
+from .models import CitrusResponse
 import time
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -40,7 +40,7 @@ def user_register(request):
 
 @csrf_exempt
 def citrus_return_url(request):
-    #citus_response = CitrusResponse()
+    citus_response = CitrusResponse()
     secret_key = "d1e4287f9b4d413b7c7286b9fd02dbdabeacf1ff"
     if request.method == 'GET':
         return HttpResponse("This is the Citrus Return Url.Post request should be sent here")
@@ -56,12 +56,12 @@ def citrus_return_url(request):
                        request.POST.get('pgRespCode') + request.POST.get('addressZip'))
 
         signature = hmac.new(secret_key, data_string, hashlib.sha1).hexdigest()
-        #citus_response.data_string = data_string
-        #citus_response.transaction_id = request.POST.get('TxId')
+        citus_response.data_string = data_string
+        citus_response.transaction_id = request.POST.get('TxId')
     if signature == request.POST.get('signature'):
-        #citus_response.response_String = "<html> <head>< body><script>CitrusResponse.pgResponse('" + json.dumps(
-           # request.POST) + "');</script></body></head></html>"
-        #citus_response.save()
+        citus_response.response_String = "<html> <head>< body><script>CitrusResponse.pgResponse('" + json.dumps(
+            request.POST) + "');</script></body></head></html>"
+        citus_response.save()
         return HttpResponse("<html> <head>< body><script>CitrusResponse.pgResponse('" + json.dumps(
             request.POST) + "');</script></body></head></html>")
 
