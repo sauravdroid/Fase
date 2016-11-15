@@ -5,3 +5,5 @@ from . models import *
 
 admin.site.register(StockNew)
 admin.site.register(CitrusResponse)
+admin.site.register(Seller)
+admin.site.register(FavoriteShop)

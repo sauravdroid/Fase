@@ -1,11 +1,15 @@
+import string
 import hashlib
 import hmac
 import json
 from .models import CitrusResponse
+from .models import Seller,FavoriteShop
+from .models import User
 import time
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.shortcuts import HttpResponse
+from django.http import HttpResponseBadRequest
 from django.utils.crypto import random
 from django.views.decorators.csrf import csrf_exempt
 
@@ -38,6 +42,83 @@ def user_register(request):
             return HttpResponse('Successfully Registered User')
 
 
+def is_app_token_valid(app_token):
+    #code to check token
+    return True
+
+@csrf_exempt
+def seller_register(request):
+     if request.method =='POST':
+         app_token=request.POST.get("APP_TOKEN")
+         if(is_app_token_valid(app_token)):
+           s_username=request.POST.get("username")
+           s_password=request.POST.get("password")
+           s_company_name=request.POST.get("cname")
+           s_address=request.POST.get("address")
+           s_phone_csv=request.POST.get("phone")
+           s_city=request.POST.get("city")
+           s_state=request.POST.get("state")
+           s_pincode=int(request.POST.get("pincode"))
+
+           #validation if needed  done here
+
+           seller=Seller()
+           user=User()
+           user.username=s_username
+           user.set_password(s_password)
+           user.save()
+           seller.seller=user
+           seller.company_name=s_company_name
+           seller.adress=s_address
+           seller.phone_no=s_phone_csv
+           seller.pincode=s_pincode
+           seller.city=s_city
+           seller.state=s_state
+           seller.save()
+           return HttpResponse("{ status:success,details:seller registration success}")
+         else:
+             return HttpResponse("{ status:fail,details:Invalid App Token}")
+     else:
+         #return HttpResponseBadRequest("{status:wrong method}")
+         return HttpResponse("error")
+
+
+
+@csrf_exempt
+def setFavoriteShop(request):
+    if request.method == 'POST':
+        app_token = request.POST.get("APP_TOKEN")
+        if (is_app_token_valid(app_token)):
+            cusername = request.POST.get("username")
+            merchant_id=request.POST.get("merchant_id")
+            user=get_object_or_404(User,username=cusername)
+            seller=get_object_or_404(Seller,pk=merchant_id)
+            fShop=FavoriteShop()
+            fShop.user=user
+            fShop.fseller=seller
+            fShop.tag=user.username+seller.company_name
+            fShop.save()
+            return HttpResponse("{ status:success,details:seller registration success}")
+        else:
+            return HttpResponse("{ status:fail,details:Invalid App Token}")
+    else:
+        # return HttpResponseBadRequest("{status:wrong method}")
+        return HttpResponse("error")
+
+@csrf_exempt
+def getFavoriteShop(request):
+    if request.method == 'GET':
+        app_token = request.GET.get("APP_TOKEN")
+        if (is_app_token_valid(app_token)):
+            cusername=request.GET.get("username")
+            fShops=FavoriteShop.objects.filter(user=User.objects.get(username=cusername))
+            total=fShops.count()
+            return HttpResponse("{ status:success,details:number of favorite shop "+str(total)+" }")
+        else:
+            return HttpResponse("{ status:fail,details:Invalid App Token}")
+    else:
+        # return HttpResponseBadRequest("{status:wrong method}")
+        return HttpResponse("error")
 @csrf_exempt
 def citrus_return_url(request):
     citus_response = CitrusResponse()
