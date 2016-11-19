@@ -62,11 +62,11 @@ def seller_register(request):
 
            #validation if needed  done here
 
-           seller=Seller()
            user=User()
            user.username=s_username
            user.set_password(s_password)
            user.save()
+           seller = Seller()
            seller.seller=user
            seller.company_name=s_company_name
            seller.adress=s_address
