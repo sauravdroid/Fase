@@ -40,7 +40,7 @@ class FavoriteShop(models.Model):
     tag=models.CharField(unique=True,max_length=510)
 
     def __str__(self):
-        return self.tag
+        return self.tag+str(self.id)
 
 
 
