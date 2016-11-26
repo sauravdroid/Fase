@@ -20,6 +20,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Create your views here.
@@ -251,30 +252,6 @@ def create_app_api(request):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-def check_app_api(request):
-    if request.method == 'POST':
-        secret_key = request.data['secret_key']
-        encrypted_key = request.data['encrypted_key']
-        signer = Signer(secret_key)
-        try:
-            original = signer.unsign(encrypted_key)
-            app = CreatedApps.objects.get(app_encrypted_key=encrypted_key)
-            serializer = AppSerializer(app)
-            return Response({"Response": "Success", "App": serializer.data}, status=status.HTTP_200_OK)
-        except BadSignature:
-            return Response({"Response": "Tampered Signature"})
-
-
-def check_signature(encrypted_key, secret_key):
-    signer = Signer(secret_key)
-    try:
-        original = signer.unsign(encrypted_key)
-        return True
-    except BadSignature:
-        return False
-
-
 @api_view(['GET', 'POST'])
 def create_app(request):
     if request.method == 'GET':
@@ -295,3 +272,29 @@ def create_app(request):
         else:
             return Response({"Response": "An app already exists with this App Name or Secret Key"},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def check_app_api(request):
+    if request.method == 'POST':
+        response = check_signature(request)
+        if response is not None:
+            return Response({"Response": "Success","App":response}, status=status.HTTP_200_OK)
+        else:
+            return Response({"Response": "Tampered Signature"})
+
+
+def check_signature(request):
+    secret_key = request.data['secret_key']
+    encrypted_key = request.data['encrypted_key']
+    signer = Signer(secret_key)
+    signer = Signer(secret_key)
+    try:
+        original = signer.unsign(encrypted_key)
+        try:
+            app = CreatedApps.objects.get(app_encrypted_key=encrypted_key)
+            return AppSerializer(app).data
+        except ObjectDoesNotExist:
+            return None
+    except BadSignature:
+        return None
