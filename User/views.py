@@ -304,7 +304,7 @@ def check_signature(request):
         return None
 
 
-class UserRegistration(ApiViewNew):
+class UserRegistration(APIView):
     @staticmethod
     def post(request):
         response = check_signature(request)
