@@ -6,7 +6,7 @@ app_name = 'user'
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^register$', views.user_register, name='register'),
+    url(r'^register$', views.UserRegistration.as_view(), name='register'),
     url(r'^seller_register$', views.seller_register, name='seller_register'),
     url(r'^set_favorite$', views.setFavoriteShop, name='set_favoriteshop'),
     url(r'^myfavoriteshops$', views.favshop.getFavoriteShop, name='get_favoriteshop'),

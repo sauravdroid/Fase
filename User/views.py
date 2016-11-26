@@ -2,7 +2,6 @@ import hashlib
 import hmac
 import json
 import time
-
 from django.core import exceptions
 from django.core.signing import Signer, BadSignature
 from django.http import JsonResponse
@@ -15,12 +14,18 @@ from rest_framework.decorators import api_view
 from .forms import *
 from .models import CitrusResponse
 from .models import Seller, FavoriteShop
-from .serializer import SellerSeraialzer, AppSerializer
+from .serializer import SellerSeraialzer, AppSerializer, UserSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.authtoken.models import Token
+
+
+class ApiViewNew(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
 
 
 # Create your views here.
@@ -279,15 +284,14 @@ def check_app_api(request):
     if request.method == 'POST':
         response = check_signature(request)
         if response is not None:
-            return Response({"Response": "Success","App":response}, status=status.HTTP_200_OK)
+            return Response({"Response": "Success", "App": response}, status=status.HTTP_200_OK)
         else:
             return Response({"Response": "Tampered Signature"})
 
 
 def check_signature(request):
-    secret_key = request.data['secret_key']
-    encrypted_key = request.data['encrypted_key']
-    signer = Signer(secret_key)
+    secret_key = request.META.get('HTTP_SECRET_KEY')
+    encrypted_key = request.META.get('HTTP_ENCRYPTED_KEY')
     signer = Signer(secret_key)
     try:
         original = signer.unsign(encrypted_key)
@@ -298,3 +302,22 @@ def check_signature(request):
             return None
     except BadSignature:
         return None
+
+
+class UserRegistration(ApiViewNew):
+    @staticmethod
+    def post(request):
+        response = check_signature(request)
+        if response is not None:
+            serializer = UserSerializer(data=request.data)
+            # return Response({"User":serializer.data})
+            if serializer.is_valid():
+                serializer.save()
+                user = User.objects.get(username=serializer.validated_data['username'])
+                token = Token.objects.get(user=user)
+                return Response({"Response": "Registration Successful", "Token": token.key},
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"Success": "False"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"Response": "Tampered Signature"})
