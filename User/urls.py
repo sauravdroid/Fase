@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^myfavoriteshops$', views.favshop.getFavoriteShop, name='get_favoriteshop'),
     url(r'^returnurl', views.citrus_return_url, name='return_urlpyth'),
     url(r'^billgenerator', views.citrus_bill_generator, name='bill_generator'),
+    url(r'^create-app/$', views.create_app_api, name='create-app'),
+    url(r'^check-app/$', views.check_app_api, name='check-app'),
+    url(r'^create-app-web/$', views.create_app, name='create-app-web'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
